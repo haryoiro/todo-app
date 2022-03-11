@@ -1,5 +1,4 @@
 use diesel::PgConnection;
-use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use serde_derive::{Deserialize, Serialize};
 

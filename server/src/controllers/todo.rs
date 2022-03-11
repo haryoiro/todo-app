@@ -1,7 +1,7 @@
 use crate::configs::database::{get_pool_handler, PgPool};
 use crate::configs::errors::ServerError;
 use crate::handlers::todos as todo_handler;
-use crate::models::{NewTodo, OrderTodo, Todo, TodoList};
+use crate::models::{NewTodo, OrderTodo, Todo};
 use crate::schema::todos as todo_schema;
 use actix_web::{delete, get, patch, post, web, HttpRequest, HttpResponse};
 use diesel::prelude::*;
