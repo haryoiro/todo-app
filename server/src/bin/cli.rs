@@ -2,7 +2,8 @@ use diesel::prelude::*;
 use server::configs::database::init_test_database;
 use server::models::{NewTodo, Todo};
 use server::schema::todos as todos_schema;
-use std::io;
+use std::io::prelude::*;
+use std::io::{self, Read};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -62,15 +63,11 @@ async fn main() -> io::Result<()> {
             Actions::Quit => break,
         }
 
-        println!("\nplease press enter to continue...");
-        let mut input = String::new();
+        write!(io::stdout(), "Press any key to continue....").expect("Failed to write to stdout");
+        io::stdout().flush().expect("Failed to flush stdout");
         io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read line");
-        match input.trim() {
-            "\n" => continue,
-            _ => continue,
-        }
+            .read_exact(&mut [0u8; 1])
+            .expect("Failed to read stdin");
     }
     Ok(())
 }
