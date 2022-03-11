@@ -5,6 +5,7 @@ use server::schema::todos as todos_schema;
 use std::io;
 use std::str::FromStr;
 
+#[derive(Debug)]
 enum Actions {
     ListAll,
     Insert,
@@ -37,29 +38,44 @@ impl Actions {
         }
     }
 }
-fn main() {
-    let mut action = String::new();
+
+#[tokio::main]
+async fn main() -> io::Result<()> {
     loop {
+        let mut action = String::new();
         println!("Select the action you wish to perform from the following");
-        println!("1. List all todos");
-        println!("2. Insert a new todo");
-        println!("3. Delete all todos");
+        println!("1 => List all todos");
+        println!("2 => Insert a new todo");
+        println!("3 => Delete all todos");
+        println!("_ => Quit\n");
 
         io::stdin()
             .read_line(&mut action)
             .expect("Failed to read line");
 
-        let action = Actions::from_numstring(&action);
+        let action = Actions::from_numstring(&action.as_str().trim());
+        println!("You selected: {:?}\n", action);
         match action {
-            Actions::ListAll => list_all_todos(),
-            Actions::Insert => insert_todo(),
-            Actions::Delete => delete_todos(),
+            Actions::ListAll => list_all_todos().await,
+            Actions::Insert => insert_todo().await,
+            Actions::Delete => delete_todos().await,
             Actions::Quit => break,
         }
+
+        println!("\nplease press enter to continue...");
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+        match input.trim() {
+            "\n" => continue,
+            _ => continue,
+        }
     }
+    Ok(())
 }
 
-fn insert_todo() {
+async fn insert_todo() {
     let connection = init_test_database();
     let mut title = String::new();
     println!("Enter the title of the todo you wish to insert");
@@ -73,22 +89,26 @@ fn insert_todo() {
         .values(&new_todo)
         .load::<Todo>(&connection)
         .expect("Error saving new todo");
-    println!("Saved Todo : {:?}", todo);
+    println!("Saved Todo : \n{:?}\n", todo);
 }
 
-fn list_all_todos() {
+async fn list_all_todos() {
     let connection = init_test_database();
     let todos = todos_schema::table
         .load::<Todo>(&connection)
         .expect("Error loading todos");
-    for todo in todos {
-        println!("{:?}", todo);
+    if todos.is_empty() {
+        println!("No todos found");
+    } else {
+        for todo in todos {
+            println!("{:?}", todo);
+        }
     }
 }
 
-fn delete_todos() {
+async fn delete_todos() {
     let connection = init_test_database();
-    diesel::delete(todos_schema::table)
+    diesel::sql_query("TRUNCATE TABLE todos restart identity")
         .execute(&connection)
-        .expect("Error deleting todos");
+        .expect("Error truncating todos");
 }
