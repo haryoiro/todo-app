@@ -80,7 +80,9 @@ async fn insert_todo() {
         .read_line(&mut title)
         .expect("Failed to read line");
     let new_todo = NewTodo {
-        title: title.trim().to_string(),
+        id: None,
+        title: Some(title.trim().to_string()),
+        completed: None,
     };
     let todo = diesel::insert_into(todos_schema::table)
         .values(&new_todo)

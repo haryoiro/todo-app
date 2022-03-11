@@ -1,25 +1,26 @@
-use actix_web::{
-    http::{
-        header::{HeaderValue, CONTENT_TYPE},
-        HttpResponse, StatusCode,
-    },
-    web, Error, HttpRequest, HttpResponse,
-};
-use serde::Serialize;
+use actix_web::{http::StatusCode, HttpResponse};
+use derive_more::Display;
+use serde_derive::Serialize;
 
-#[derive(Debug)]
+#[derive(Debug, Display)]
 pub enum ServerError {
     /// a generic error.
+    #[display(fmt = "Internal Server Error: {}", _0)]
     GenericError(String),
     /// an io error.
+    #[display(fmt = "IO Error: {}", _0)]
     IOError(std::io::Error),
     /// an io error.
+    #[display(fmt = "Serde Error: {}", _0)]
     ConversionError(serde_json::Error),
     /// an error from the database.
+    #[display(fmt = "Database Error: {}", _0)]
     DatabaseError(diesel::result::Error),
     /// a response error.
+    #[display(fmt = "Response Error: {}", _0)]
     ResponseError(Box<dyn actix_web::error::ResponseError>),
     /// an error representing a not found resource.
+    #[display(fmt = "Not Found Error: {:?}", _0)]
     NotFoundError(Option<String>),
 }
 
@@ -30,35 +31,34 @@ pub struct ErrorResponse {
     pub message: String,
 }
 
-impl std::fmt::Display for ServerError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ServerError::DatabaseError(err) => write!(f, "Database error: {}", err),
-            _ => write!(f, "{:?}", self),
-        }
-    }
-}
-
 impl actix_web::error::ResponseError for ServerError {
     fn error_response(&self) -> HttpResponse {
         match self {
+            ServerError::GenericError(msg) => HttpResponse::BadRequest().json(ErrorResponse {
+                code: 500,
+                error: "Internal Server Error".to_string(),
+                message: msg.to_string(),
+            }),
             ServerError::ResponseError(err) => err.error_response(),
             ServerError::NotFoundError(optional_message) => {
+                let message = if let Some(message) = optional_message {
+                    message.to_string()
+                } else {
+                    "Not found".to_string()
+                };
                 let error_response = ErrorResponse {
                     code: StatusCode::NOT_FOUND.as_u16(),
                     error: "Not Found".to_string(),
-                    message: optional_message.unwrap_or_else(|| "Resource not found".to_string()),
+                    message,
                 };
-                HttpResponse::build(StatusCode::NOT_FOUND)
-                    .json(error_response)
-                    .finish()
+                HttpResponse::NotFound().json(error_response)
             }
             _ => HttpResponse::build(self.status_code())
-                .insert_header(ContentType::JSON)
+                .insert_header(("Content-Type", "application/json"))
                 .json(json!({
                     "code": self.status_code().as_u16(),
-                    "error": "Internal Server Error",
-                    "message": self.to_string(),
+                    "error": "Internal Server Error".to_string(),
+                    "message": "Internal Server Error".to_string(),
                 })),
         }
     }
@@ -87,23 +87,6 @@ impl From<diesel::result::Error> for ServerError {
 impl From<std::io::Error> for ServerError {
     fn from(err: std::io::Error) -> Self {
         ServerError::IOError(err)
-    }
-}
-
-impl From<actix_multipart::MultipartError> for ServerError {
-    fn from(err: actix_multipart::MultipartError) -> Self {
-        ServerError::GenericError(err.to_string())
-    }
-}
-
-impl From<actix_web::error::BlockingError<ServerError>> for ServerError {
-    fn from(err: actix_web::error::BlockingError<ServerError>) -> Self {
-        match err {
-            actix_web::error::BlockingError::Error(err) => err,
-            actix_web::error::BlockingError::Canceled => {
-                ServerError::GenericError("Request canceled".to_string())
-            }
-        }
     }
 }
 
