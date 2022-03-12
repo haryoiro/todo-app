@@ -11,7 +11,7 @@ pub async fn list_all(
     let conn = get_pool_handler(pool).expect("Error loading todos");
     let mut query_sql = todo_schema::table.order(todo_schema::id.asc()).into_boxed();
 
-    if let Some(_) = &query.id {
+    if query.id.is_some() {
         if query.id.unwrap() {
             query_sql = query_sql.order(todo_schema::id.asc());
         } else {
@@ -19,7 +19,7 @@ pub async fn list_all(
         }
     }
 
-    if let Some(_) = &query.title {
+    if query.title.is_some() {
         if query.title.unwrap() {
             query_sql = query_sql.order(todo_schema::title.asc());
         } else {

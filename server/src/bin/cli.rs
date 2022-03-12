@@ -54,7 +54,7 @@ async fn main() -> io::Result<()> {
             .read_line(&mut action)
             .expect("Failed to read line");
 
-        let action = Actions::from_numstring(&action.as_str().trim());
+        let action = Actions::from_numstring(action.as_str().trim());
         println!("You selected: {:?}\n", action);
         match action {
             Actions::ListAll => list_all_todos().await,

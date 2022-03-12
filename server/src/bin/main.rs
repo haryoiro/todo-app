@@ -13,7 +13,7 @@ async fn main() -> std::io::Result<()> {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-    println!("\nServer ready at {}", format!("http://{}", PORT));
+    println!("\nServer ready at http://{}", PORT);
 
     HttpServer::new(|| {
         App::new()
