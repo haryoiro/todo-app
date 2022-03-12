@@ -1,9 +1,12 @@
-use actix_web::{web, HttpResponse};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{ConnectionManager, Pool, PoolError, PooledConnection};
-use diesel::Connection;
-use dotenv::dotenv;
 use std::env;
+
+use actix_web::{web, HttpResponse};
+use diesel::{
+    pg::PgConnection,
+    r2d2::{ConnectionManager, Pool, PoolError, PooledConnection},
+    Connection,
+};
+use dotenv::dotenv;
 
 pub type PgPool = Pool<ConnectionManager<PgConnection>>;
 pub type PgPooledConnection = PooledConnection<ConnectionManager<PgConnection>>;

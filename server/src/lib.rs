@@ -13,9 +13,6 @@ pub mod models;
 pub mod route;
 pub mod schema;
 
-#[macro_use]
-extern crate serde_json;
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate log;
+#[macro_use] extern crate serde_json;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate log;

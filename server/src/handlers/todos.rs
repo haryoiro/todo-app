@@ -1,8 +1,11 @@
-use crate::configs::database::{get_pool_handler, PgPool};
-use crate::models::{OrderTodo, Todo, TodoList};
-use crate::schema::todos as todo_schema;
 use actix_web::web;
 use diesel::prelude::*;
+
+use crate::{
+    configs::database::{get_pool_handler, PgPool},
+    models::{OrderTodo, Todo, TodoList},
+    schema::todos as todo_schema,
+};
 
 pub async fn list_all(
     pool: web::Data<PgPool>,

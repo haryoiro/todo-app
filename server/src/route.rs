@@ -1,8 +1,9 @@
+use actix_web::{web, Scope};
+
 use crate::controllers::{
     dev::{get_hello, get_index, get_json},
     todo::{delete_todo, get_todo, list_todo, post_todo, toggle_todo},
 };
-use actix_web::{web, Scope};
 
 // host:port/api へアクセスしたときのルーティングを設定します。
 // App.new().service(api_scope())

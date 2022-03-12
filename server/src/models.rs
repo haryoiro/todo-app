@@ -1,14 +1,12 @@
-use diesel::PgConnection;
-use diesel::RunQueryDsl;
+use diesel::{PgConnection, RunQueryDsl};
 use serde_derive::{Deserialize, Serialize};
 
-use crate::schema::todos;
-use crate::schema::todos::dsl;
+use crate::schema::{todos, todos::dsl};
 
 #[derive(Queryable, Deserialize, Serialize, PartialEq, Debug)]
 pub struct Todo {
-    pub id: i32,
-    pub title: String,
+    pub id:        i32,
+    pub title:     String,
     pub completed: bool,
 }
 #[derive(Serialize, Deserialize)]
@@ -24,8 +22,8 @@ impl TodoList {
 #[derive(Insertable, AsChangeset, Serialize, Deserialize)]
 #[table_name = "todos"]
 pub struct NewTodo {
-    pub id: Option<i32>,
-    pub title: Option<String>,
+    pub id:        Option<i32>,
+    pub title:     Option<String>,
     pub completed: Option<bool>,
 }
 
@@ -39,7 +37,7 @@ impl NewTodo {
 
 #[derive(Serialize, Deserialize)]
 pub struct OrderTodo {
-    pub id: Option<bool>,
-    pub title: Option<bool>,
+    pub id:        Option<bool>,
+    pub title:     Option<bool>,
     pub completed: Option<bool>,
 }

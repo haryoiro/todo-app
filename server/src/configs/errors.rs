@@ -26,19 +26,21 @@ pub enum ServerError {
 
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
-    pub code: u16,
-    pub error: String,
+    pub code:    u16,
+    pub error:   String,
     pub message: String,
 }
 
 impl actix_web::error::ResponseError for ServerError {
     fn error_response(&self) -> HttpResponse {
         match self {
-            ServerError::GenericError(msg) => HttpResponse::BadRequest().json(ErrorResponse {
-                code: 500,
-                error: "Internal Server Error".to_string(),
-                message: msg.to_string(),
-            }),
+            ServerError::GenericError(msg) => {
+                HttpResponse::BadRequest().json(ErrorResponse {
+                    code:    500,
+                    error:   "Internal Server Error".to_string(),
+                    message: msg.to_string(),
+                })
+            }
             ServerError::ResponseError(err) => err.error_response(),
             ServerError::NotFoundError(optional_message) => {
                 let message = if let Some(message) = optional_message {
@@ -53,13 +55,15 @@ impl actix_web::error::ResponseError for ServerError {
                 };
                 HttpResponse::NotFound().json(error_response)
             }
-            _ => HttpResponse::build(self.status_code())
-                .insert_header(("Content-Type", "application/json"))
-                .json(json!({
-                    "code": self.status_code().as_u16(),
-                    "error": "Internal Server Error".to_string(),
-                    "message": "Internal Server Error".to_string(),
-                })),
+            _ => {
+                HttpResponse::build(self.status_code())
+                    .insert_header(("Content-Type", "application/json"))
+                    .json(json!({
+                        "code": self.status_code().as_u16(),
+                        "error": "Internal Server Error".to_string(),
+                        "message": "Internal Server Error".to_string(),
+                    }))
+            }
         }
     }
 
@@ -73,31 +77,21 @@ impl actix_web::error::ResponseError for ServerError {
 }
 
 impl From<serde_json::Error> for ServerError {
-    fn from(err: serde_json::Error) -> Self {
-        ServerError::ConversionError(err)
-    }
+    fn from(err: serde_json::Error) -> Self { ServerError::ConversionError(err) }
 }
 
 impl From<diesel::result::Error> for ServerError {
-    fn from(err: diesel::result::Error) -> Self {
-        ServerError::DatabaseError(err)
-    }
+    fn from(err: diesel::result::Error) -> Self { ServerError::DatabaseError(err) }
 }
 
 impl From<std::io::Error> for ServerError {
-    fn from(err: std::io::Error) -> Self {
-        ServerError::IOError(err)
-    }
+    fn from(err: std::io::Error) -> Self { ServerError::IOError(err) }
 }
 
 impl From<String> for ServerError {
-    fn from(err: String) -> Self {
-        ServerError::GenericError(err)
-    }
+    fn from(err: String) -> Self { ServerError::GenericError(err) }
 }
 
 impl From<&str> for ServerError {
-    fn from(err: &str) -> Self {
-        ServerError::GenericError(err.to_string())
-    }
+    fn from(err: &str) -> Self { ServerError::GenericError(err.to_string()) }
 }

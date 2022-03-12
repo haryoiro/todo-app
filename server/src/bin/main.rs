@@ -1,10 +1,11 @@
 extern crate server;
+use std::env;
+
 use actix_web::{
     middleware::{Logger, NormalizePath, TrailingSlash},
     web, App, HttpServer,
 };
 use server::{configs::database::establish_connection, route::todo_scope};
-use std::env;
 
 const PORT: &str = "127.0.0.1:8080";
 

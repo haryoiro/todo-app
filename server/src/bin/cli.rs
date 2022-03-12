@@ -1,10 +1,14 @@
+use std::{
+    io::{self, prelude::*, Read},
+    str::FromStr,
+};
+
 use diesel::prelude::*;
-use server::configs::database::init_test_database;
-use server::models::{NewTodo, Todo};
-use server::schema::todos as todos_schema;
-use std::io::prelude::*;
-use std::io::{self, Read};
-use std::str::FromStr;
+use server::{
+    configs::database::init_test_database,
+    models::{NewTodo, Todo},
+    schema::todos as todos_schema,
+};
 
 #[derive(Debug)]
 enum Actions {
@@ -80,8 +84,8 @@ async fn insert_todo() {
         .read_line(&mut title)
         .expect("Failed to read line");
     let new_todo = NewTodo {
-        id: None,
-        title: Some(title.trim().to_string()),
+        id:        None,
+        title:     Some(title.trim().to_string()),
         completed: None,
     };
     let todo = diesel::insert_into(todos_schema::table)
