@@ -17,3 +17,8 @@ db.down:
 .PHONY: db.attach
 db.attach:
 	docker-compose exec db /bin/bash -c "su - postgres"
+
+
+.PHONY: lnt.fix
+lnt.fix:
+	cargo clippy -p server --fix --allow-dirty
