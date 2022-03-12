@@ -1,10 +1,16 @@
-.PHONY: dev.server
+.PHONY: dev.api
 dev.server:
 	cargo watch -x 'run -p server --bin main'
 
-.PHONY: run.cli
+.PHONY: dev.fix
+dev.fix:
+	cargo fmt -p server
+
+.PHONY: cli.run
 run.cli:
 	cargo run -p server --bin cli
+
+
 
 .PHONY: db.up
 db.up:
@@ -18,7 +24,3 @@ db.down:
 db.attach:
 	docker-compose exec db /bin/bash -c "su - postgres"
 
-
-.PHONY: lnt.fix
-lnt.fix:
-	cargo clippy -p server --fix --allow-dirty
